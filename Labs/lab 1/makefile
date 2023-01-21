@@ -1,3 +1,6 @@
+# Dennis Audu [148463193]
+# daudu@myseneca.ca
+
 CC = g++
 LIBS = -L . libPidUtil.a
 CFLAGS = -Wall -I.
