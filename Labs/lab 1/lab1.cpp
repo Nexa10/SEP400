@@ -1,3 +1,7 @@
+// Dennis Audu
+// 148463193
+// daudu@myseneca.ca
+
 #include "pidUtil.h"
 #include <string>
 #include<vector>
