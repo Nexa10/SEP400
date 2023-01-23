@@ -10,7 +10,7 @@ int main(){
 
 	vector <int> pids;
 	string name;
-	int pid_num;
+	int pid_num = 0;
 	
 //Get all names
 	GetAllPids(pids);
@@ -36,8 +36,8 @@ int main(){
 	
 //Get Pid of Lab1
 	cout <<"Q4: "<< endl;
-	name = "Lab1";
-	cout << "Lab1: "<<  GetPidByName(name, pid_num) << endl << endl;
+	GetPidByName("Lab1", pid_num);
+	cout << "Lab1: "<<  to_string(pid_num) << endl << endl;
 	
 	
 //Get Pid of Lab11 -> Err_msg
