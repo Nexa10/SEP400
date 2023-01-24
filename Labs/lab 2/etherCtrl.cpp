@@ -12,6 +12,8 @@
 
 using namespace std;
 
+
+
 int main()
 {
     int fd;
@@ -72,26 +74,46 @@ int main()
                 printf("MAC Address: %02X:%02X:%02X:%02X:%02X:%02X\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
             }
             break;
+            
         case 2:
             ret = ioctl(fd, SIOCGIFDSTADDR, &ifr);
-            if (ret < 0)
-            {
+            if (ret < 0){
                 cout << strerror(errno);
             }
-            else if (ifr.ifr_name.sa_family != AF_INET)
-            {
-                cout << "iNVALID IP" << endl;
+            else if (ifr.ifr_addr.sa_family != AF_INET){
+                cout << "No IP address found" << endl;
             }
-            else
-            {
+            else{
                 mac = (unsigned char *)inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
-                printf("MAC Address: %s\n", mac);
+                printf("IP Address: %s\n", mac);
+                }
                 break;
+                
             case 3:
                 ret = ioctl(fd, SIOCGIFNETMASK, &ifr);
+                if (ret < 0){
+                	cout << strerror(errno);
+                }
+                else if(ifr.ifr_netmask.sa_family != AF_INET){
+                    cout << "No Network Mask found" <<endl;
+                }
+                else{
+                    mac = (unsigned char *)inet_ntoa(((struct sockaddr_in *)&ifr.ifr_netmask)->sin_addr);
+                    printf("Network Mask: %s \n", mac);
+                }
                 break;
             case 4:
                 ret = ioctl(fd, SIOCGIFBRDADDR, &ifr);
+                if (ret < 0){
+                    cout << strerror(errno);
+                }
+                else if(ifr.ifr_broadaddr.sa_family != AF_INET){
+                    cout << "No Broadcast address found" <<endl;
+                }
+                else{
+                    mac = (unsigned char *)inet_ntoa(((struct sockaddr_in *)&ifr.ifr_broadaddr)->sin_addr);
+                    printf("Network Mask: %s \n", mac);
+                }
                 break;
             }
             if (selection != 0)
@@ -108,3 +130,5 @@ int main()
         close(fd);
         return 0;
     }
+
+
