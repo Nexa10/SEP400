@@ -1,6 +1,10 @@
 //intfMonitor_solution.cpp - An interface monitor
 //
 // 13-Jul-20  M. Watler         Created.
+//
+//Dennis Audu
+//148463193
+//daudu@myseneca.ca
 
 #include <fcntl.h>
 #include <cstring>
@@ -89,25 +93,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-//TODO: Create a signal handler that starts your program on SIGUSR1 (sets isRunning to true),
-
-//      stops your program on SIGUSR2 (sets isRunning to false),
-//      and discards any ctrl-C or ctrl-Z.
-//
-//      If the signal handler receives a SIGUSR1, the following message should appear on the screen:
-//      intfMonitor: starting up
-//
-//      If the signal handler receives a ctrl-C, the following message should appear on the screen:
-//      intfMonitor: ctrl-C discarded
-//
-//      If the signal handler receives a ctrl-Z, the following message should appear on the screen:
-//      intfMonitor: ctrl-Z discarded
-//
-//      If the signal handler receives a SIGUSR2, the following message should appear on the screen:
-//      intfMonitor: shutting down
-//
-//      If the signal handler receives any other signal, the following message should appear on the screen:
-//      intfMonitor: undefined signal
+//TODO: Create a signal handler that starts your program on SIGUSR1 (sets isRunning to true)
 
 void signalHandler(int signum){
 	switch(signum){

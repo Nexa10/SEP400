@@ -2,6 +2,10 @@
 //
 // 13-Jul-20  M. Watler         Created.
 
+//Dennis Audu
+//148463193
+//daudu@myseneca.ca
+
 #include <fcntl.h>
 #include <fstream>
 #include <cstring>
@@ -38,14 +42,11 @@ int main()
     }
     if(isParent) {
     	
-        cout << endl << "JJJJ: " <<  endl;
-
-        sleep(1);
+        sleep(10);
         systemMonitor();
     }
 
     cout << "parent:main("<<getpid()<<"): Finished!" << endl;
-
     return 0;
 }
 
@@ -60,7 +61,7 @@ int systemMonitor()//run by the parent process
     }
     
     //TODO: sleep for 30 seconds
-    sleep(5);
+    sleep(30);
     
     //TODO: Send stop signals to the children (SIGUSR2)
     if(isParent){
