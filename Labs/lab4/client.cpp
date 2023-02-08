@@ -60,25 +60,22 @@ int main()
         printf('Client connected!\n')
     }
 
-    while (isRunning)
-    {
-        bzero(buffer, sizeof(buffer));
-        printf("Enter Your Message: ");
-        fget(buffer, sizeof(buffer) - 1, stdin);
-        // write
+    while (isRunning){
+    	memset(buffer, '\0', sizeof(buffer));
+    	client.read = read(client.fd, buffer, sizeof(buffer) - 1);
+        if (client.read < 0)
+        {
+            error_msg("Eroor: Client-read failed!\n")
+        }
+    	
+        actions(buffer);
+        
         client.write = write(client.fd, buffer, strlen(buffer));
         if (client.write < 0)
         {
             error_msg("Error: Client-Write failed!\n");
         }
-
-        // receive
-        client.read = read(client.fd, buffer, sizeof(buffer) - 1);
-        if (client.read < 0)
-        {
-            error_msg("Eroor: Client-read failed!\n")
-        }
-        printf("[Server]: %s", buffer);
+        
     }
 
     close(client.fd);
@@ -94,18 +91,16 @@ void error_msg(const char *msg)
 
 void actions(char *command)
 {
-
     bzero(buffer, sizeof(buffer));
-    switch (command)
-    {
+    switch (command){
     case "Pid":
         cout << "A request for the client's pid has been received" << endl;
         char const *pid = to_string(getpid()).c_str();
         strncpy(buffer, "This client has pid: ");
         strcat(buffer, pid);
-    break
+    	break;
 
-        case "Sleep":
+    case "Sleep":
         cout << "This client is going to sleep for 5 seconds" << endl;
         sleep(5);
         break;
