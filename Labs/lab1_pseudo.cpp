@@ -1,44 +1,43 @@
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-#include "pidUtil.h"
-#include <string>
-#include<vector>
 
-int main(){
+using namespace std;
+char name[100];
 
-    //GetAllPids takes a vector to return the pids
-    //You need a vector of int: vector <int> "whatever you wanna call it"
+void change(char* str){
+    char hey [64] = "is not the goat";
+    char temp[64] ;
+    if(strlen(name) > 0){
+        strncpy(temp, name, sizeof(temp));
 
-	//You need a string to store pids in the vector, you can call the string whatever
+        
+        memset(name,'\0', sizeof(name));
+    }
     
-    //You need an int to do Q4 & Q5 (instantiated the int var to zero)
-	
-//Q1: Get all names
-    //pass the vector name into GetAllPids()
-	
-//Q2: Get all pids
-    //1. Iterate through the vector created, 2. then pass the index (i), and the string variable into GetNameByPid()
-	/*for(auto i: ("vector name")){
-		implement 2. in here (don't forget to print out the name)
-	}*/
+   if (strcmp(temp, "name") == 0){
+            strncpy(name, "Ronaldo ", sizeof(name));
+            strcat(name, hey);
+   }
+   else if((strcmp(temp, "sleep")) == 0){
+       sleep(2);
+        //printf("Slept");
+        cout << "slept" << endl;
+   }
+else{
+            cout << "None" << endl;
+    }
+    
+}
 
-	
-//q3: Set Pid to 1
-	//pass "1" and the string variable into GetNameByPid();
-    //print the string variable
-	
-	
-//Q4: Get Pid of Lab1
-    //pass "Lab1" and the int variable into GetPidByName();
-    //print the int variable
+int main()
+{
+    strncpy(name, "name", 100);
+    change(name);
+    cout << "New Name: " << name << endl;
 
-	
-	
-//Q%: Get Pid of Lab11 -> Err_msg
-	//Make a variable of type ErrStatus (ErrStatus is the enum in the header file)
-    //Instantiate your variable with GetPidByName() - passing "Lab11", and your int variable
-    // i.e. ErrStatus var = func
-	//the print out the error message by passing the ErrStatus var into GetErrorMsg()
-	
-
-	return 0;
+    return 0;
 }
