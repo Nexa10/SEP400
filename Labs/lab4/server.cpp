@@ -4,77 +4,91 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <iostream>
+using namespace std;
 
-#define SOCKET_NAME "/tmp/lab4"
-struct functions{int fd, Bind, Listen, Client, Read, Send;};
-
+char SOCKET_NAME[] = "/tmp/lab5";
 void error_msg(const char *msg);
 
-int main()
+int main(int argc, char *argv[])
 {
     char buffer[256];
-    struct sockaddr_un server_addr, client_addr;
-    int size_serv = sizeof(server_addr);
-    int size_client = sizeof(client_addr);
-    struct functions server;
-
+    struct sockaddr_un server_addr;
+    int fd, client, rd, wr;
+    bool isRunning = true;
+    
     // create sockets
-    server.fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (server.fd < 0)
+    fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (fd < 0)
     {
         error_msg("Error: Socket was not created.\n");
     }
-    else
-    {
-        printf("Socket created...\n");
-    }
-    bzero((char *)&server_addr, size_serv);
+ 
+   cout << "Socket created..." << endl;
+  
+    bzero(&server_addr, sizeof(server_addr));
 
     // initialize socket struct
     server_addr.sun_family = AF_UNIX;
-    // Copy path to sun_path
     strncpy(server_addr.sun_path, SOCKET_NAME, sizeof(server_addr.sun_path) - 1);
+  
     unlink(SOCKET_NAME);
 
-    // bind socket with portnumber
-    server.Bind = bind(fd, (struct sockaddr *)&server_addr, size_serv);
-    if (server.Bind < 0){
+    // bind socket with file
+    if (bind(fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){
         error_msg("Error: Server could not bind\n");
     }
-        printf("Socket Binded on: %s\n", server_addr.sun_path);
-
-
-    // Listen
-    server.Listen = listen(server.fd, 5);
-    if (server.Listen < 0){
-        error_msg("Error: Server is not listening!\n")
-    }
-        printf("Waiting for the client...\n");
-        sleep(1);
+    else cout << "Socket Binded on: " << server_addr.sun_path << endl;
     
 
-    // accept connection
-    server.Client = accept(server.fd, sockaddr_un * client_addr, size_client);
-    if (server.Accept < 0){
-        error_msg("Error: Server did not connect")
+    // Listen
+    if (listen(fd, 5) < 0){
+        error_msg("Error: Server is not listening!\n");
+        unlink(SOCKET_NAME);
+	close(fd);
+	exit(-1);
     }
-        printf("Server: accept()\n");
-	sleep(1);
 
-    // send
-    char msg[] = "Hello\n";
-    send(server.fd, msg, sizeof(msg), 0);
-    prinf("Sending to client: %s....", client_addr.sun_path)
-
-        // Read
-        server.Read = read(server.Client, buffer, sizeof(buffer) - 1);
-    if (server.Read < 0)
-    {
-        error_msg("Error: Failed to read");
-    }
-    memset(buffer, '\0', sizeof(buffer));
-    printf("[Client]: %s\n", buffer);
-
+    // accept connection   
+    
+    	cout << "Waiting for the client..." << endl;
+	    if (client = accept(fd, NULL, NULL) < 0){
+		error_msg("Error: Server accept()\n");
+		unlink(SOCKET_NAME);
+		close(fd);
+		exit(-1);
+	    }
+		cout << "Server: accept()" << endl;
+	
+	    // send
+	    const char* msg[]= {"Pid", "Sleep", "Done"};
+	    for (int i = 0; i < 3; i++){
+	    	if(wr = write(client, msg[i], strlen(msg[i])) < 0){
+	    		error_msg("Error: Server-write failed\n");
+	    		unlink(SOCKET_NAME);
+			close(fd);
+	    	}
+	
+	    	cout << endl << "Sending to client:...." << endl;
+	    	sleep(3);
+	    	
+	    	// Read
+	    	if (rd = read(client, buffer, sizeof(buffer)) < 0){
+			error_msg("Error: Failed to read");
+			unlink(SOCKET_NAME);
+			close(fd);
+	    	}
+	    
+	    	cout << "[Client]: " << buffer << endl;
+	    	bzero(buffer, sizeof(buffer));
+	    	sleep(1);
+	    }
+	
+	cout << "Server Shutting Down" << endl;
+	unlink(SOCKET_NAME);
+	close(fd);
+	close(client);
+        
     return 0;
 }
 

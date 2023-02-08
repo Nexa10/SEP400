@@ -9,77 +9,61 @@ using namespace std;
 
 void error_msg(const char *msg);
 void actions(char *command);
-struct functions
-{
-    int fd, bind, connect, read, write;
-};
-#define SOCKET_NAME "/tmp/lab4"
-bool isRunning = true;
+
+char SOCKET_NAME[] = "/tmp/lab5";
 char buffer[256];
+bool isRunning, ifSend = true;
 
-int main()
+int main(int argc, char *argv[])
 {
-    struct functions client;
-
-    struct sockaddr_un serv_addr;
-    int serv_size = sizeof(serv_addr);
-
-    client.fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (client.fd < 0)
-    {
-        error_msg("Error: Socket was not created.\n")
+    int fd, rd;
+    struct sockaddr_un server_addr;
+    
+    memset(&server_addr, 0, sizeof(server_addr));
+  
+    //create
+    fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (fd < 0){
+        error_msg("Error: Socket was not created.\n");
+        exit(-1);
     }
-    else
-    {
-        printf("Socket created...\n");
-    }
+    cout << "Socket created..." << endl;
 
-    bzero((char *)&serv_addr, serv_size);
-    client_addr.sun_family = AF_UNIX;
-    strncpy(client_addr.sun_path, SOCKET_NAME, sizeof(client_addr.sun_path) - 1);
-    unlink(SOCKET_NAME);
-
-    client.bind = bind(client.fd, (struct sockaddr *)&serv_addr, serv_size);
-    if (client.bind < 0)
-    {
-        error_msg("Error: Client Socket did not bind\n");
-    }
-    else
-    {
-        printf("Client Binded!\n");
-    }
-
+    
+    server_addr.sun_family = AF_UNIX;
+    strncpy(server_addr.sun_path, SOCKET_NAME, sizeof(server_addr.sun_path) - 1);
+  
     // connect
-    client.connect = connect(client.fd, (struct sockaddr *)&serv_addr, serv_size);
-    if (client.connect < 0)
-    {
-        error_msg("Client couldn't connect to server!\n")
-    }
-    else
-    {
-        printf('Client connected!\n')
+    if (connect(fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0){
+        error_msg("Client couldn't connect to server!\n");
+        close(fd);
+        exit(-1);
     }
 
+    cout << "Client connected!" << endl;
+   	
     while (isRunning){
-    	memset(buffer, '\0', sizeof(buffer));
-    	client.read = read(client.fd, buffer, sizeof(buffer) - 1);
-        if (client.read < 0)
+    cout << "Client connected!" << endl;
+    	rd = read(fd, buffer, sizeof(buffer));
+        if (rd < 0)
         {
-            error_msg("Eroor: Client-read failed!\n")
+            error_msg("Error: Client-read failed!\n");
         }
     	
         actions(buffer);
         
-        client.write = write(client.fd, buffer, strlen(buffer));
-        if (client.write < 0)
-        {
-            error_msg("Error: Client-Write failed!\n");
+        if(ifSend){ //do not send if asked to sleep or quit
+		if (write(fd, buffer, strlen(buffer)-1) < 0){
+		    error_msg("Error: Client-Write failed!\n");
+		    close(fd);
+		    exit(-1);
+		}
         }
-        
+        bzero(buffer, sizeof(buffer));
     }
-
-    close(client.fd);
-
+    
+    close(fd);
+    
     return 0;
 }
 
@@ -89,25 +73,28 @@ void error_msg(const char *msg)
     exit(1);
 }
 
-void actions(char *command)
-{
-    bzero(buffer, sizeof(buffer));
-    switch (command){
-    case "Pid":
-        cout << "A request for the client's pid has been received" << endl;
-        char const *pid = to_string(getpid()).c_str();
-        strncpy(buffer, "This client has pid: ");
-        strcat(buffer, pid);
-    	break;
-
-    case "Sleep":
-        cout << "This client is going to sleep for 5 seconds" << endl;
+void actions(char *msg){
+       
+   if (strncmp(msg, "Pid", 3) == 0){
+   	bzero(buffer, sizeof(buffer));
+   	char const *pid = to_string(getpid()).c_str(); //converts pid to char array
+   	strncpy(buffer, "This client has pid: ", sizeof(buffer));
+        strcat(buffer, pid); //concatenate buffer and pid 
+        }
+        
+   else if(strncmp(msg, "Sleep", 5) == 0){
+       	printf("This client is going to sleep for 5 seconds\n");
         sleep(5);
-        break;
-
-    case "Done":
-        cout << "This client is quitting" << endl;
-        isRunning = false;
-        break;
+        ifSend = false;
+        cout << "slept" << endl;
+        }
+        
+   else if(strncmp(msg, "Done", 4) == 0){
+       printf("This client is quitting\n");
+       isRunning = false;
+      }
+        
+   else{
+         cout << "None" << endl;
     }
 }
