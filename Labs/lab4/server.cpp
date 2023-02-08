@@ -6,10 +6,7 @@
 #include <unistd.h>
 
 #define SOCKET_NAME "/tmp/lab4"
-struct functions
-{
-    int fd, Bind, Listen, Client, Read, Send;
-};
+struct functions{int fd, Bind, Listen, Client, Read, Send;};
 
 void error_msg(const char *msg);
 
@@ -25,7 +22,7 @@ int main()
     server.fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (server.fd < 0)
     {
-        error_msg("Error: Socket was not created.")
+        error_msg("Error: Socket was not created.\n");
     }
     else
     {
@@ -41,36 +38,28 @@ int main()
 
     // bind socket with portnumber
     server.Bind = bind(fd, (struct sockaddr *)&server_addr, size_serv);
-    if (servBind < 0)
-    {
-        error_msg("Error: Server could not bind");
+    if (server.Bind < 0){
+        error_msg("Error: Server could not bind\n");
     }
-    else
-    {
         printf("Socket Binded on: %s\n", server_addr.sun_path);
-    }
+
 
     // Listen
-    server.Listen = listen(fd, 5);
-    if (server.Listen < 0)
-    {
-        error_msg("Error: Server is not listening!")
+    server.Listen = listen(server.fd, 5);
+    if (server.Listen < 0){
+        error_msg("Error: Server is not listening!\n")
     }
-    else
-    {
-        printf("Server Listening...\n");
-    }
+        printf("Waiting for the client...\n");
+        sleep(1);
+    
 
     // accept connection
     server.Client = accept(server.fd, sockaddr_un * client_addr, size_client);
-    if (server.Accept < 0)
-    {
+    if (server.Accept < 0){
         error_msg("Error: Server did not connect")
     }
-    else
-    {
-        printf("Server connected!\n");
-    }
+        printf("Server: accept()\n");
+	sleep(1);
 
     // send
     char msg[] = "Hello\n";
