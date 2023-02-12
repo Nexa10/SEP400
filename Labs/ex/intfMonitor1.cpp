@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	// TODO: Ensure there are no errors in registering the handlers
 
 	struct sigaction sa;
-	sa.sa_handler = Signal_Handler;
+	sa.sa_handler = Signal_Handler; //D: pass a reference to the function using &
 	sa.sa_flags = SA_RESTART;
 	sigisemptyset(&sa.sa_mask);
 
@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
 //
 //       If the signal handler receives any other signal, the following message should appear on the screen:
 //       intfMonitor: undefined signal
+
 
 void Signal_Handler(int Signal)
 {
