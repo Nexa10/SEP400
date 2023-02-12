@@ -70,10 +70,9 @@ int main(int argc, char *argv[])
 	    	}
 	
 	    	cout << endl << "Sending to client:...." << endl;
-	    	sleep(3);
-	    	
+	
 	    	// Read
-	    	if (rd = read(client, buffer, sizeof(buffer)) < 0){
+	    	if (rd = read(client, buffer, sizeof(buffer)-1) < 0){
 			error_msg("Error: Failed to read");
 			unlink(SOCKET_NAME);
 			close(fd);
@@ -81,8 +80,14 @@ int main(int argc, char *argv[])
 	    
 	    	cout << "[Client]: " << buffer << endl;
 	    	bzero(buffer, sizeof(buffer));
-	    	sleep(1);
+	    	sleep(5);
 	    }
+	    
+	    /*ncri
+	    1866292799
+	    1866292799
+	    1007693379
+	    2685 north drive*/
 	
 	cout << "Server Shutting Down" << endl;
 	unlink(SOCKET_NAME);

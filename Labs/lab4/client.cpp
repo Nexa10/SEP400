@@ -11,8 +11,8 @@ void error_msg(const char *msg);
 void actions(char *command);
 
 char SOCKET_NAME[] = "/tmp/lab5";
-char buffer[256];
-bool isRunning, ifSend = true;
+char buffer[256] = "Client Nexa";
+bool isRunning = true, ifSend = true;
 
 int main(int argc, char *argv[])
 {
@@ -39,27 +39,27 @@ int main(int argc, char *argv[])
         close(fd);
         exit(-1);
     }
-
-    cout << "Client connected!" << endl;
    	
     while (isRunning){
     cout << "Client connected!" << endl;
-    	rd = read(fd, buffer, sizeof(buffer));
-        if (rd < 0)
+    
+    	if (write(fd, &buffer, strlen(buffer)-1) < 0){
+		    error_msg("Error: Client-Write failed!\n");
+		    close(fd);
+		    exit(-1);
+		}
+		
+        if (rd = read(fd, buffer, sizeof(buffer)) < 0)
         {
             error_msg("Error: Client-read failed!\n");
         }
     	
         actions(buffer);
         
-        if(ifSend){ //do not send if asked to sleep or quit
-		if (write(fd, buffer, strlen(buffer)-1) < 0){
-		    error_msg("Error: Client-Write failed!\n");
-		    close(fd);
-		    exit(-1);
-		}
-        }
-        bzero(buffer, sizeof(buffer));
+        //if(ifSend){ //do not send if asked to sleep or quit
+		
+        //}
+        //bzero(buffer, sizeof(buffer));
     }
     
     close(fd);
@@ -80,6 +80,7 @@ void actions(char *msg){
    	char const *pid = to_string(getpid()).c_str(); //converts pid to char array
    	strncpy(buffer, "This client has pid: ", sizeof(buffer));
         strcat(buffer, pid); //concatenate buffer and pid 
+        cout << "sent Pid" << endl;
         }
         
    else if(strncmp(msg, "Sleep", 5) == 0){
