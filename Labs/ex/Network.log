@@ -1,0 +1,10 @@
+ens33: tx_bytes:0 rx_bytes:0 tx_packets:0 rx_packets: 0
+lo: tx_bytes:303598 rx_bytes:303598 tx_packets:4224 rx_packets: 4224
+lo: tx_bytes:303598 rx_bytes:303598 tx_packets:4224 rx_packets: 4224
+ens33: tx_bytes:0 rx_bytes:0 tx_packets:0 rx_packets: 0
+lo: tx_bytes:303598 rx_bytes:303598 tx_packets:4224 rx_packets: 4224
+ens33: tx_bytes:0 rx_bytes:0 tx_packets:0 rx_packets: 0
+ens33: tx_bytes:0 rx_bytes:0 tx_packets:0 rx_packets: 0
+lo: tx_bytes:303598 rx_bytes:303598 tx_packets:4224 rx_packets: 4224
+lo: tx_bytes:303598 rx_bytes:303598 tx_packets:4224 rx_packets: 4224
+ens33: tx_bytes:0 rx_bytes:0 tx_packets:0 rx_packets: 0

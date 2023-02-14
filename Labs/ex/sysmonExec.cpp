@@ -54,13 +54,19 @@ int systemMonitor() // run by the parent process
     pid_t pid = 0;
 
     // TODO: Send start signals to the children (SIGUSR1)
-    	//D: you have to send "SIGUSR1", the way you sent SIGUSR2
+    if (isParent)
+    {
+        for (size_t i = 0; i < NUM; i++)
+        {
+            kill(childPid[i], SIGUSR1);
+        }
+    }
     // TODO: sleep for 30 seconds
-    	//D: sleep 30s
+    sleep(30);
     // TODO: Send stop signals to the children (SIGUSR2)
     if (isParent)
     {
-        for (int i = 0; i < NUM; i++)
+        for (size_t i = 0; i < NUM; i++)
         {
             kill(childPid[i], SIGUSR2);
         }

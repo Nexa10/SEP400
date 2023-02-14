@@ -16,7 +16,7 @@ const int MAXBUF = 128;
 bool isRunning = false;
 
 // TODO: Declare your signal handler function prototype
-static void Signal_Handler(int Signal);
+void Signal_Handler(int Signal);
 bool Running = true;
 
 int main(int argc, char *argv[])
@@ -30,9 +30,9 @@ int main(int argc, char *argv[])
 	// TODO: Ensure there are no errors in registering the handlers
 
 	struct sigaction sa;
-	sa.sa_handler = Signal_Handler; //D: pass a reference to the function using &
+	sa.sa_handler = &Signal_Handler; 
 	sa.sa_flags = SA_RESTART;
-	sigisemptyset(&sa.sa_mask);
+	
 
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
 	// TODO: Wait for SIGUSR1 - the start signal from the parent
 
-	while (isRunning = false)
+	while (!isRunning)
 	{
 		sleep(0.1);
 	}
