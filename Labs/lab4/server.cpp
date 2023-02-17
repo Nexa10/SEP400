@@ -40,13 +40,14 @@ int main(int argc, char *argv[])
     }
     else cout << "Socket Binded on: " << server_addr.sun_path << endl;
     
-
+    while (isRunning) {
     // Listen
-    if (listen(fd, 5) < 0){
-        error_msg("Error: Server is not listening!\n");
-        unlink(SOCKET_NAME);
-	close(fd);
-	exit(-1);
+	    if (listen(fd, 5) < 0){
+		error_msg("Error: Server is not listening!\n");
+		unlink(SOCKET_NAME);
+		close(fd);
+		exit(-1);
+	    }
     }
 
     // accept connection   
