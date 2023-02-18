@@ -8,15 +8,13 @@
 using namespace std;
 
 void error_msg(const char *msg);
-void actions(char *command);
-
 char SOCKET_NAME[] = "/tmp/lab5";
-char buffer[256] = "Client Nexa";
-bool isRunning = true, ifSend = true;
 
 int main(int argc, char *argv[])
 {
     int fd, rd;
+    char buffer[256];
+    bool isRunning = true;
     struct sockaddr_un server_addr;
     
     memset(&server_addr, 0, sizeof(server_addr));
@@ -41,29 +39,39 @@ int main(int argc, char *argv[])
     }
    	
     while (isRunning){
-    cout << "Client connected!" << endl;
-    
-    	if (write(fd, &buffer, strlen(buffer)-1) < 0){
+        cout << "Client connected!" << endl;
+        bzero(buffer, sizeof(buffer));
+		// Read
+        if (rd = read(fd, buffer, sizeof(buffer)) < 0){
+            error_msg("Error: Client-read failed!\n");
+        }
+    	
+        bzero(buffer, sizeof(buffer));
+        if (strncmp(buffer, "Pid", 3) == 0){
+            char const *pid = to_string(getpid()).c_str(); //converts pid to char array
+            strncpy(buffer, "This client has pid: ", sizeof(buffer));
+            strcat(buffer, pid); //concatenate buffer and pid 
+            cout << "sent Pid" << endl;
+        }
+        else if(strncmp(buffer, "Sleep", 5) == 0){
+            printf("This client is going to sleep for 5 seconds\n");
+            sleep(5);
+            cout << "slept" << endl;
+        }
+        else if(strncmp(buffer, "Done", 4) == 0){
+            printf("This client is quitting\n");
+            isRunning = false;
+        }      
+        
+        // Write
+        if (write(fd, &buffer, strlen(buffer)-1) < 0){
 		    error_msg("Error: Client-Write failed!\n");
 		    close(fd);
 		    exit(-1);
 		}
-		
-        if (rd = read(fd, buffer, sizeof(buffer)) < 0)
-        {
-            error_msg("Error: Client-read failed!\n");
-        }
-    	
-        actions(buffer);
-        
-        //if(ifSend){ //do not send if asked to sleep or quit
-		
-        //}
-        //bzero(buffer, sizeof(buffer));
     }
     
     close(fd);
-    
     return 0;
 }
 
@@ -73,29 +81,3 @@ void error_msg(const char *msg)
     exit(1);
 }
 
-void actions(char *msg){
-       
-   if (strncmp(msg, "Pid", 3) == 0){
-   	bzero(buffer, sizeof(buffer));
-   	char const *pid = to_string(getpid()).c_str(); //converts pid to char array
-   	strncpy(buffer, "This client has pid: ", sizeof(buffer));
-        strcat(buffer, pid); //concatenate buffer and pid 
-        cout << "sent Pid" << endl;
-        }
-        
-   else if(strncmp(msg, "Sleep", 5) == 0){
-       	printf("This client is going to sleep for 5 seconds\n");
-        sleep(5);
-        ifSend = false;
-        cout << "slept" << endl;
-        }
-        
-   else if(strncmp(msg, "Done", 4) == 0){
-       printf("This client is quitting\n");
-       isRunning = false;
-      }
-        
-   else{
-         cout << "None" << endl;
-    }
-}

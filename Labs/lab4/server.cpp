@@ -40,56 +40,55 @@ int main(int argc, char *argv[])
     }
     else cout << "Socket Binded on: " << server_addr.sun_path << endl;
     
-    while (isRunning) {
     // Listen
-	    if (listen(fd, 5) < 0){
-		error_msg("Error: Server is not listening!\n");
-		unlink(SOCKET_NAME);
-		close(fd);
-		exit(-1);
-	    }
-    }
+	if (listen(fd, 5) < 0){
+	error_msg("Error: Server is not listening!\n");
+	unlink(SOCKET_NAME);
+	close(fd);
+	exit(-1);
+	}
+	else{
+		cout << "Client Connected to the server" <<endl;
+	}
 
     // accept connection   
-    
-    	cout << "Waiting for the client..." << endl;
+    while(isRunning){
+		cout << "Server: accept()" << endl;
 	    if (client = accept(fd, NULL, NULL) < 0){
 		error_msg("Error: Server accept()\n");
 		unlink(SOCKET_NAME);
 		close(fd);
 		exit(-1);
 	    }
-		cout << "Server: accept()" << endl;
+	}
 	
 	    // send
-	    const char* msg[]= {"Pid", "Sleep", "Done"};
+	    char msg[][64]= {"Pid", "Sleep", "Done"};
 	    for (int i = 0; i < 3; i++){
+			// Write
 	    	if(wr = write(client, msg[i], strlen(msg[i])) < 0){
 	    		error_msg("Error: Server-write failed\n");
 	    		unlink(SOCKET_NAME);
-			close(fd);
+				close(fd);
 	    	}
-	
-	    	cout << endl << "Sending to client:...." << endl;
-	
-	    	// Read
+			else{
+				cout << endl << "Sending to client:...." << endl;
+			}
+			printout(msg[i]);
+	    	
+	    	sleep(5);
+
+			// Read
+			bzero(buffer, sizeof(buffer));
 	    	if (rd = read(client, buffer, sizeof(buffer)-1) < 0){
 			error_msg("Error: Failed to read");
 			unlink(SOCKET_NAME);
 			close(fd);
 	    	}
-	    
-	    	cout << "[Client]: " << buffer << endl;
-	    	bzero(buffer, sizeof(buffer));
-	    	sleep(5);
+			cout << "[Client]: " << buffer << endl;
+			
 	    }
-	    
-	    /*ncri
-	    1866292799
-	    1866292799
-	    1007693379
-	    2685 north drive*/
-	
+	        
 	cout << "Server Shutting Down" << endl;
 	unlink(SOCKET_NAME);
 	close(fd);
@@ -102,4 +101,18 @@ void error_msg(const char *msg)
 {
     perror(msg);
     exit(1);
+}
+
+void printout(const char str[]){
+	if (strncmp(str, "Pid", 3) == 0){
+            
+            cout << "The server requests the client pid" << endl;
+        }
+        else if(strncmp(str, "Sleep", 5) == 0){
+
+            cout << "The server requests the client to sleep" << endl;
+        }
+        else if(strncmp(str, "Done", 4) == 0){
+            cout << "The server requests the client to quit" << endl;
+        } 
 }
