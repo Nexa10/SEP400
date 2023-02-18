@@ -40,6 +40,7 @@ int main() {
 
         // Handle the "Pid" command
         if (strncmp(command, "Pid", 3) == 0) {
+        	cout << "A request for the client's pid has been recieved" << endl;
             memset(&command, 0, sizeof(command)); 
             int pid = getpid();
             snprintf(command, sizeof(command), "This client has pid %d", pid);

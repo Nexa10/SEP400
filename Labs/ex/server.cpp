@@ -46,10 +46,11 @@ int main()
     }
     else{
         cout << "Client connected." << endl;
-        cout << "Server: accept()" << endl;
+        cout << "server: accept()" << endl;
     }
     
-    char cmd [][64] = {"Pid", "sleep", "done"};
+    char cmd [][64] = {"Pid", "Sleep", "Done"};
+    char info[][256] = {"The server requests the client's pid", "The server requests the client to sleep", "The server requests the client to quit"};
     for (int i = 0; i < 3; i++){
         // Send the "Pid" command to the client
         if (send(cl, cmd[i], sizeof(cmd), 0) == -1){
@@ -59,7 +60,7 @@ int main()
             exit(1);
         }
         else{
-            cout << "Request Sent" << endl;
+            cout << info[i] << endl;
         }
 
         memset(&buf, 0, sizeof(buf));
@@ -71,7 +72,7 @@ int main()
         }
         
         if(strncmp(cmd[i], "Pid", 3) == 0){
-            cout << "Server: " << buf << endl;
+            cout << "server: " << buf << endl;
         }
     }
     

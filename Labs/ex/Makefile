@@ -1,16 +1,15 @@
-CC=g++
-CFLAGS=-I
-CFLAGS+=-Wall
-FILES1=sysmonExec.cpp
-FILES2=intfMonitor.cpp
+CC = g++
+CFLAGS += -Wall
+FILE = server.cpp
+FILE2 = client.cpp
 
-sysmonExec: $(FILES1)
-	$(CC) $(CFLAGS) -o sysmonExec $(FILES1)
+all: server client
 
-intfMonitor: $(FILES2)
-	$(CC) $(CFLAGS) -o intfMonitor $(FILES2)
+server: server.cpp
+	$(CC) $(CFLAGS) -o $@ $^
+
+client: client.cpp
+	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -f *.o sysmonExec intfMonitor
-
-all: sysmonExec intfMonitor
+	rm -f *.o server client
