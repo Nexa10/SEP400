@@ -1,3 +1,7 @@
+//Dennis Audu
+//daudu@myseneca.ca
+//148463193
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,15 +11,15 @@
 #include <iostream>
 using namespace std;
 
-char SOCKET_NAME[] = "/tmp/lab5";
+char SOCKET_NAME[] = "/tmp/lab4";
 void error_msg(const char *msg);
+void printout(const char str[]);
 
 int main(int argc, char *argv[])
 {
     char buffer[256];
     struct sockaddr_un server_addr;
     int fd, client, rd, wr;
-    bool isRunning = true;
     
     // create sockets
     fd = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -24,7 +28,6 @@ int main(int argc, char *argv[])
         error_msg("Error: Socket was not created.\n");
     }
  
-   cout << "Socket created..." << endl;
   
     bzero(&server_addr, sizeof(server_addr));
 
@@ -38,7 +41,6 @@ int main(int argc, char *argv[])
     if (bind(fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){
         error_msg("Error: Server could not bind\n");
     }
-    else cout << "Socket Binded on: " << server_addr.sun_path << endl;
     
     // Listen
 	if (listen(fd, 5) < 0){
@@ -48,46 +50,47 @@ int main(int argc, char *argv[])
 	exit(-1);
 	}
 	else{
-		cout << "Client Connected to the server" <<endl;
-	}
-
-    // accept connection   
-    while(isRunning){
-		cout << "Server: accept()" << endl;
-	    if (client = accept(fd, NULL, NULL) < 0){
-		error_msg("Error: Server accept()\n");
-		unlink(SOCKET_NAME);
-		close(fd);
-		exit(-1);
-	    }
+		cout << "Waiting for the client..." <<endl;
 	}
 	
-	    // send
-	    char msg[][64]= {"Pid", "Sleep", "Done"};
-	    for (int i = 0; i < 3; i++){
-			// Write
-	    	if(wr = write(client, msg[i], strlen(msg[i])) < 0){
-	    		error_msg("Error: Server-write failed\n");
-	    		unlink(SOCKET_NAME);
-				close(fd);
-	    	}
-			else{
-				cout << endl << "Sending to client:...." << endl;
-			}
-			printout(msg[i]);
-	    	
-	    	sleep(5);
 
-			// Read
-			bzero(buffer, sizeof(buffer));
-	    	if (rd = read(client, buffer, sizeof(buffer)-1) < 0){
-			error_msg("Error: Failed to read");
-			unlink(SOCKET_NAME);
+    // accept    
+    if ((client = accept(fd, NULL, NULL)) < 0){
+	error_msg("Error: Server accept()\n");
+	unlink(SOCKET_NAME);
+	close(fd);
+	exit(-1);
+    }
+    else cout << "Client connected to the server" << endl;
+    cout << "Server: accept()" << endl;
+	
+    // send
+    char msg[][64]= {"Pid", "Sleep", "Done"};
+    for (int i = 0; i < 3; i++){
+		// Write
+    	if((wr = write(client, msg[i], sizeof(msg[i]))) < 0){
+    		error_msg("Error: Server-write failed\n");
+    		unlink(SOCKET_NAME);
 			close(fd);
-	    	}
-			cout << "[Client]: " << buffer << endl;
-			
-	    }
+    	}
+		else{
+			printout(msg[i]);
+		}
+
+		// Read
+		bzero(buffer, sizeof(buffer));
+		
+    	if ((rd = read(client, buffer, sizeof(buffer)-1)) < 0){
+		error_msg("Error: Failed to read");
+		unlink(SOCKET_NAME);
+		close(fd);
+    	}
+    	if (strncmp(msg[i], "Pid", 3) == 0){
+		cout << "[Server]: " << buffer << endl;
+		}
+		
+    }
+    	sleep(3);
 	        
 	cout << "Server Shutting Down" << endl;
 	unlink(SOCKET_NAME);

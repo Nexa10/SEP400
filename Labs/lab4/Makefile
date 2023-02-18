@@ -1,3 +1,7 @@
+#Dennis Audu
+#daudu@myseneca.ca
+#148463193
+
 CC = g++
 CFLAGS += -Wall
 FILE = server.cpp
