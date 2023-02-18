@@ -5,73 +5,70 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+using namespace std;
 
 int main() {
     const char* socket_file = "/tmp/lab4";
+    struct sockaddr_un address;
+    char command[1024];
+
+    memset(&address, 0, sizeof(address));
 
     // Create a socket
     int client_socket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (client_socket == -1) {
-        std::perror("socket");
-        std::exit(EXIT_FAILURE);
+        perror("socket");
+        exit(1);
     }
 
     // Connect to the server
-    struct sockaddr_un address;
-    std::memset(&address, 0, sizeof(address));
     address.sun_family = AF_UNIX;
-    std::strncpy(address.sun_path, socket_file, sizeof(address.sun_path) - 1);
+    strncpy(address.sun_path, socket_file, sizeof(address.sun_path) - 1);
     if (connect(client_socket, (struct sockaddr*)&address, sizeof(address)) == -1) {
-        std::perror("connect");
-        std::exit(EXIT_FAILURE);
+        perror("connect");
+        exit(1);
     }
 
-    // Loop forever
-    while (true) {
+    while(true){
+        memset(&command, 0, sizeof(command));
         // Receive a command from the server
-        char command[1024];
-        ssize_t num_bytes = recv(client_socket, command, sizeof(command) - 1, 0);
-        if (num_bytes == -1) {
-            std::perror("recv");
-            std::exit(EXIT_FAILURE);
+        int rd = read(client_socket, command, sizeof(command) - 1);
+        if (rd == -1) {
+            perror("recv");
+            exit(1);
         }
-        command[num_bytes] = '\0';
 
         // Handle the "Pid" command
-        if (std::strcmp(command, "Pid") == 0) {
+        if (strncmp(command, "Pid", 3) == 0) {
+            memset(&command, 0, sizeof(command)); 
             int pid = getpid();
-            char pid_string[1024];
-            std::snprintf(pid_string, sizeof(pid_string), "This client has pid %d", pid);
-            if (send(client_socket, pid_string, std::strlen(pid_string), 0) == -1) {
-                std::perror("send");
-                std::exit(EXIT_FAILURE);
+            snprintf(command, sizeof(command), "This client has pid %d", pid);
+            if (send(client_socket, command, strlen(command), 0) == -1) {
+                perror("send");
+                exit(1);
             }
         }
-
         // Handle the "Sleep" command
-        else if (std::strcmp(command, "Sleep") == 0) {
-            std::cout << "Sleeping for 5 seconds..." << std::endl;
-            std::sleep(5);
+        else if (strncmp(command, "Sleep", 5) == 0) {
+            cout << "This client is going to sleep for 5 seconds" << endl;
+            sleep(5);
             if (send(client_socket, "Done", 4, 0) == -1) {
-                std::perror("send");
-                std::exit(EXIT_FAILURE);
+                perror("send");
+                exit(1);
             }
         }
-
         // Handle the "Quit" command
-        else if (std::strcmp(command, "Quit") == 0) {
+        else if (strncmp(command, "Done", 4) == 0) {
+            cout << "This Client is quitting" << endl;
             break;
         }
-
         // Handle an unknown command
-        else {
-            std::cerr << "Unknown command: " << command << std::endl;
-            std::exit(EXIT_FAILURE);
+        else{
+            cerr << "Unknown command: " << command << std::endl;
+            exit(EXIT_FAILURE);
         }
     }
-
     // Clean up
     close(client_socket);
-
-    return EXIT_SUCCESS;
+    return 0;
 }
