@@ -35,9 +35,7 @@ int main(int argc, char* argv[]){
     sa.sa_handler = &sigHandler;
     sa.sa_flags = SA_RESTART;
 
-    for(int i=0; i<MAX_CLIENTS; i++){
-        pthread_create(&client_threads[i], NULL, threadFunc, NULL);
-    }
+    
 
     fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
     if(fd < 0){
@@ -78,16 +76,24 @@ int main(int argc, char* argv[]){
         if((cl = accept(fd, (struct sockaddr *)&destaddr, (socklen_t*)&clilen)) < 0){
             errorMsg("Error: Accept");
         }
-        int *pClient = new int(sizeof(int));
-        *pClient = cl;
-        pthread_mutex_lock(&thr_mutex);
-        fds.push(pClient);
-        pthread_mutex_unlock(&thr_mutex);
+        else{
+            if (num_client < MAX_CLIENTS){
+                for(int i=0; i<MAX_CLIENTS; i++){
+                    pthread_create(&client_threads[i], NULL, threadFunc, NULL);
+                }
+            }
+            int *pClient = cl;
+          
+            pthread_mutex_lock(&thr_mutex);
+            fds.push(pClient);
+            pthread_mutex_unlock(&thr_mutex);
 
-        pthread_mutex_lock(&mutex);
-        printQueue(message);
-        if(!message.empty()) while(!message.empty()) message.pop();
-        pthread_mutex_unlock(&mutex);
+            pthread_mutex_lock(&mutex);
+            printQueue(message);
+            if(!message.empty()) while(!message.empty()) message.pop();
+            pthread_mutex_unlock(&mutex);
+        }
+        
         sleep(1);
     }
     //send quit
