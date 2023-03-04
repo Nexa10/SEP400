@@ -16,26 +16,29 @@ using namespace std;
 #define MAX_CLIENTS 3
 const char IP_ADDR[] = "127.0.0.1"; 
 bool is_running = true;
+
 queue<string> message;
-queue<int*>fds;
 pthread_t client_threads [MAX_CLIENTS];
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t thr_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 void sigHandler(int sig);
 void* readThread(void* arg);
-void* threadFunc(void *arg);
 void errorMsg(const char* msg);
 void printQueue(queue<string> str);
 
 int main(int argc, char* argv[]){
-    int fd, cl, ret;
+    int fd;
+    int num_client = 0;
+    int cl1, cl2, cl3;
+    int clients[] = {cl1, cl2, cl3};
+
     struct sockaddr_in addr;
     struct sockaddr_in destaddr;
+    int clilen = sizeof(destaddr);
+
     struct sigaction sa;
     sa.sa_handler = &sigHandler;
     sa.sa_flags = SA_RESTART;
-
-    
 
     fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
     if(fd < 0){
@@ -43,17 +46,10 @@ int main(int argc, char* argv[]){
     }
 
     bzero((char *)&addr, sizeof(addr));
-//    addr.sin_family = AF_INET;
-//    addr.sin_addr.s_addr = inet_addr(IP_ADDR);
-//    addr.sin_port = htons(atoi(argv[1]));
 
     addr.sin_family = AF_INET;
     inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
     addr.sin_port = htons(atoi(argv[1]));
-    // if((ret = inet_pton(AF_INET, IP_ADDR, addr.sin_addr)) == 0){
-    //     close(fd);
-    //     errorMsg("Error: ret")
-    // }
 
     //bind
     if((bind(fd, (struct sockaddr *)&addr, sizeof(addr))) < 0){
@@ -65,43 +61,41 @@ int main(int argc, char* argv[]){
         close(fd);
         errorMsg("Error: listen failed");
     }
-    cout << "Waiting..." << endl;
-
-    int num_client = 0;
-    int clilen = sizeof(destaddr);
 
     while(is_running){
         //accept
-
-        if((cl = accept(fd, (struct sockaddr *)&destaddr, (socklen_t*)&clilen)) < 0){
-            errorMsg("Error: Accept");
-        }
-        else{
-            if (num_client < MAX_CLIENTS){
-                for(int i=0; i<MAX_CLIENTS; i++){
-                    pthread_create(&client_threads[i], NULL, threadFunc, NULL);
+        while(num_client < MAX_CLIENTS){
+            clients[num_client] = accept(fd, (struct sockaddr *)&destaddr, (socklen_t*)&clilen);
+            if(clients[num_client] < 0){
+                if(errno == EWOULDBLOCK){
+                    cout << "Waiting..." << endl;
+                    sleep(1);
+                }
+                else{
+                    errorMsg("Error: Accept");
                 }
             }
-            int *pClient = cl;
-          
-            pthread_mutex_lock(&thr_mutex);
-            fds.push(pClient);
-            pthread_mutex_unlock(&thr_mutex);
-
-            pthread_mutex_lock(&mutex);
-            printQueue(message);
-            if(!message.empty()) while(!message.empty()) message.pop();
-            pthread_mutex_unlock(&mutex);
+            else{
+                pthread_create(&client_threads[num_client], NULL, readThread, &clients[num_client]);
+                num_client  += 1;
+            }
         }
-        
-        sleep(1);
+
+        pthread_mutex_lock(&mutex);
+        printQueue(message);
+        if(!message.empty()) while(!message.empty()) message.pop();
+        pthread_mutex_unlock(&mutex);
+        sleep(5);
     }
     //send quit
-    send(cl, "Quit", 4, 0);
+
     for(int i=0; i<MAX_CLIENTS; i++) {
+        send(clients[i], "Quit\n", 4, 0);
         pthread_join( client_threads[i], NULL);
+        close(clients[i]);
     }
-    close(cl);
+ 
+
     close(fd);
     return 0;
 }
@@ -110,18 +104,6 @@ void sigHandler(int sig){
     if(sig == SIGINT){
         is_running = false;
     }
-}
-
-void* threadFunc(void *arg){
-    while(is_running){
-        pthread_mutex_lock(&thr_mutex);
-        int *client = fds.front();
-        if(!fds.empty()) fds.pop();
-        pthread_mutex_lock(&thr_mutex);
-        if(client != NULL)
-            readThread(client);
-    }
-    pthread_exit(NULL);
 }
 
 void* readThread(void* arg){
