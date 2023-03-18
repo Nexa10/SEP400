@@ -95,3 +95,15 @@ void* recvFunc(void* arg){
 void sigHandler(int sig){
 	if(sig == SIGINT) is_running = false;
 }
+
+/*
+QUESTIONS
+- Between sockets, pipes, fifos, and messages, which is your favorite and why?
+I prefer message queue because it is more explicit about defining the destination of your message/data. Plus, the receiving process is almost guaranteed to get the message sent.
+
+- Which is your least favorite and why?
+Pipe is my least favorite, it is not a solid option for synchronization, and it has a limited capacity.
+
+- For the scenario presented in this lab, is there a need for a server? Why?
+In this scenario, no, because the clients could change the message types like they changed destinations. However, in a scenario with several clients and other conditions, it would be easier to have the server.
+*/
