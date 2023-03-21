@@ -9,7 +9,11 @@ LIBS=-lpthread
 travel: $(FILES)
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
+server: Server.cpp
+	$(CC) $(CFLAGS) -o $@ $^
+
 clean:
 	rm -f *.o travel
+	rm -f *.o server
 	
-all: travel
+all: travel server
