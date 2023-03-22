@@ -35,12 +35,6 @@ bool is_running = true;
 pthread_mutex_t lock_x;
 
 int InitializeLog() {
-    /* -----------------------------------------
-     create a non-blocking socket for UDP communications (AF_INET, SOCK_DGRAM). 
-     Set the address and port of the server. Create a mutex to protect any shared resources. 
-     Start the receive thread and pass the file descriptor to it.
-     -----------------------------------------  */
-    // TODO: CLIENT BINDS ITSELF TO A DIFFERENT ADDRESS AND PORT
     
     const int SERV_PORT = 1153;
     const char SERV_ADDR[] = "127.0.0.1";
@@ -48,9 +42,6 @@ int InitializeLog() {
 
     fd = socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, 0);
 
-    cout << "[DEBUG]" <<"Initializing log...."<< endl;
-
-    // struct sockaddr_in addr;
     memset(&myaddr, 0, sizeof(myaddr));
     myaddr.sin_family = AF_INET;
     myaddr.sin_port = htons(PORT);
