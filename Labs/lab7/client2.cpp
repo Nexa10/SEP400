@@ -63,7 +63,8 @@ int main(void) {
     cout << "[client " << CLIENT_NO << "] waiting.." << endl;
     for(int i=0; i<NUM_MESSAGES && is_running; ++i) {
         //TODO: Synchronize processes with semaphores
-	if(ShmPTR->destClientNo==CLIENT_NO) {
+	sem_wait(sem_id);
+    	    if(ShmPTR->destClientNo==CLIENT_NO) {
             cout<<"Client "<<CLIENT_NO<<" has received a message from client "<<ShmPTR->srcClientNo<<":"<<endl;
 	    cout<<ShmPTR->message<<endl;
 	    //Send a message to client 1 or 3
